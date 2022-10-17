@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import './App.css'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
 
@@ -33,9 +35,44 @@ function App() {
     const registerWindowPopup = openPopupResize(url, "Tm3 Register")
     console.log("windowpopup", registerWindowPopup)
 
-    if(!registerWindowPopup){
-      
+    if (!registerWindowPopup) {
+      toast.warning("Popup Blocked")
     }
+
+    if (registerWindowPopup.focus) {
+      window.focus()
+    }
+
+    // checking status window
+    const intervalId = setInterval(() => {
+      if (registerWindowPopup.closed) {
+        toast.warning("User Canelled")
+        clearInterval(intervalId)
+      }
+
+      let href = ""
+      try {
+        href = registerWindowPopup.location.href
+        console.log(href)
+      } catch (err) {
+        console.log(err)
+      }
+
+      // checking href or black page
+      if (!href || href === "about::blank") {
+        return;
+      }
+
+      console.log("href:: back end flask redirect with origin", href)
+
+      if (href.startsWith(redirectUrl)) {
+        clearInterval(intervalId)
+        toast(href)
+        registerWindowPopup.close()
+      }
+
+
+    }, 50)
   }
 
   return (
@@ -58,6 +95,19 @@ function App() {
           Register
         </button>
       </div>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </div>
   )
 }
