@@ -3,12 +3,12 @@ import reactLogo from './assets/react.svg'
 import './App.css'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ExamAuth from './authen-libs'
 
 function App() {
 
   const redirectUrl = "http://localhost:4000/"
-  const WIDTH_POPUP = 760
-  const HEIGHT_POPUP = 600
+
 
   function openPopupResize(urlNavigitation, popupName) {
 
@@ -26,53 +26,69 @@ function App() {
     return window.open(urlNavigitation, popupName, config)
   }
 
-  const handleRegiser = () => {
+  // const handleRegiser = () => {
+  //   const host = "http://localhost:3000/register"
+  //   const url = host + `?redirect_url=${redirectUrl}`
+
+  //   const registerWindowPopup = openPopupResize(url, "Tm3 Register")
+  //   console.log("windowpopup", registerWindowPopup)
+
+  //   if (!registerWindowPopup) {
+  //     toast.warning("Popup Blocked")
+  //   }
+
+  //   if (registerWindowPopup.focus) {
+  //     window.focus()
+  //   }
+
+  //   // checking status window
+  //   const intervalId = setInterval(() => {
+  //     if (registerWindowPopup.closed) {
+  //       toast.warning("User Canelled")
+  //       clearInterval(intervalId)
+  //     }
+
+  //     let href = ""
+  //     try {
+  //       href = registerWindowPopup.location.href
+  //       console.log(href)
+  //     } catch (err) {
+  //       console.log(err)
+  //     }
+
+  //     // checking href or black page
+  //     if (!href || href === "about::blank") {
+  //       return;
+  //     }
+
+  //     console.log("href:: back end flask redirect with origin", href)
+
+  //     if (href.startsWith(redirectUrl)) {
+  //       clearInterval(intervalId)
+  //       toast(href)
+  //       registerWindowPopup.close()
+  //     }
+  //   }, 50)
+  // }
+
+  const handleRegiser = async () => {
     const host = "http://localhost:3000/register"
-    const url = host + `?redirect_url=${redirectUrl}`
-
-    console.log(url)
-
-    const registerWindowPopup = openPopupResize(url, "Tm3 Register")
-    console.log("windowpopup", registerWindowPopup)
-
-    if (!registerWindowPopup) {
-      toast.warning("Popup Blocked")
+    try {
+      const res = await ExamAuth.AuthPopup(host, redirectUrl, "Register")
+      console.log("resgister success::", res)
+    } catch (error) {
+      console.log("resgister fails::", error)
     }
+  }
 
-    if (registerWindowPopup.focus) {
-      window.focus()
+  const handleLogin = async () => {
+    const host = "http://localhost:3000/login"
+    try {
+      const res = await ExamAuth.AuthPopup(host, redirectUrl, "Login")
+      console.log("login success::", res)
+    } catch (error) {
+      console.log("login fails::", error)
     }
-
-    // checking status window
-    const intervalId = setInterval(() => {
-      if (registerWindowPopup.closed) {
-        toast.warning("User Canelled")
-        clearInterval(intervalId)
-      }
-
-      let href = ""
-      try {
-        href = registerWindowPopup.location.href
-        console.log(href)
-      } catch (err) {
-        console.log(err)
-      }
-
-      // checking href or black page
-      if (!href || href === "about::blank") {
-        return;
-      }
-
-      console.log("href:: back end flask redirect with origin", href)
-
-      if (href.startsWith(redirectUrl)) {
-        clearInterval(intervalId)
-        toast(href)
-        registerWindowPopup.close()
-      }
-
-
-    }, 50)
   }
 
   return (
@@ -87,7 +103,7 @@ function App() {
       </div>
       <h1>Login + Register</h1>
       <div className="card">
-        <button style={{ marginRight: "10px" }}>
+        <button onClick={handleLogin} style={{ marginRight: "10px" }}>
           Login
         </button>
 
