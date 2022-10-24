@@ -8,85 +8,66 @@ import ExamAuth from './authen-libs'
 function App() {
 
   const redirectUrl = "http://localhost:4000/"
+  const [email, setEmail] = useState("")
+  const [errorEmail, setErrorEmail] = useState("")
 
-
-  function openPopupResize(urlNavigitation, popupName) {
-
-    const screenLeft = window.screenLeft || window.screenX // IE8
-    const screenTop = window.screenTop || window.screenY
-
-    const width = window.outerWidth || document.documentElement.clientWidth || document.body.clientWidth
-    const height = window.outerHeight || document.documentElement.clientHeight || document.body.clientHeight
-
-    const left = Math.max(0, (width / 2) - (WIDTH_POPUP / 2) + screenLeft)
-    const top = Math.max(0, (height / 2) - (HEIGHT_POPUP / 2) + screenTop)
-
-    const config = `width=${WIDTH_POPUP}, height=${HEIGHT_POPUP}, top=${top}, left=${left}, scrollbars=yes`
-
-    return window.open(urlNavigitation, popupName, config)
+  function validateEmail(email) {
+    var re = /\S+@\S+\.\S+/;
+    return re.test(email);
   }
 
-  // const handleRegiser = () => {
-  //   const host = "http://localhost:3000/register"
-  //   const url = host + `?redirect_url=${redirectUrl}`
-
-  //   const registerWindowPopup = openPopupResize(url, "Tm3 Register")
-  //   console.log("windowpopup", registerWindowPopup)
-
-  //   if (!registerWindowPopup) {
-  //     toast.warning("Popup Blocked")
-  //   }
-
-  //   if (registerWindowPopup.focus) {
-  //     window.focus()
-  //   }
-
-  //   // checking status window
-  //   const intervalId = setInterval(() => {
-  //     if (registerWindowPopup.closed) {
-  //       toast.warning("User Canelled")
-  //       clearInterval(intervalId)
-  //     }
-
-  //     let href = ""
-  //     try {
-  //       href = registerWindowPopup.location.href
-  //       console.log(href)
-  //     } catch (err) {
-  //       console.log(err)
-  //     }
-
-  //     // checking href or black page
-  //     if (!href || href === "about::blank") {
-  //       return;
-  //     }
-
-  //     console.log("href:: back end flask redirect with origin", href)
-
-  //     if (href.startsWith(redirectUrl)) {
-  //       clearInterval(intervalId)
-  //       toast(href)
-  //       registerWindowPopup.close()
-  //     }
-  //   }, 50)
-  // }
 
   const handleRegiser = async () => {
     const host = "http://localhost:3000/register"
     try {
       const res = await ExamAuth.AuthPopup(host, redirectUrl, "Register")
       console.log("resgister success::", res)
+      const search = new URL(res.href).searchParams
+
+      if(search.get("error")){
+        toast.error(search.get("error"))
+        return
+      }
+
+      const emailReturn = search.get("email");
+      // Login 
+      toast.success(emailReturn)
     } catch (error) {
+      toast.error(error.msg)
       console.log("resgister fails::", error)
     }
   }
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault()
     const host = "http://localhost:3000/login"
+
+    if (!validateEmail(email)) {
+      toast.error("Email invalidate")
+      return;
+    }
+
     try {
+
+      if(!email){
+        setErrorEmail("")
+      }
+
       const res = await ExamAuth.AuthPopup(host, redirectUrl, "Login")
       console.log("login success::", res)
+      const search = new URL(res.href).searchParams
+      const emailReturn = search.get("email");
+
+      // Login 
+      console.log({ email, emailReturn })
+      if (email === emailReturn) {
+        console.log("Login...")
+      } else {
+        toast.error("Face not match")
+      }
+
     } catch (error) {
+      toast.error(error.msg)
       console.log("login fails::", error)
     }
   }
@@ -103,7 +84,9 @@ function App() {
       </div>
       <h1>Login + Register</h1>
       <div className="card">
-        <button onClick={handleLogin} style={{ marginRight: "10px" }}>
+        <label id="email">Email</label>
+        <input required type='text' value={email} onChange={(e) => setEmail(e.target.value)} id="email" />
+        <button type='submit'  onClick={handleLogin} style={{ marginRight: "10px" }}>
           Login
         </button>
 

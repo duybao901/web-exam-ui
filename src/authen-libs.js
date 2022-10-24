@@ -8,7 +8,7 @@ function openPopupResize(urlNavigitation, popupName) {
 
     const width = window.outerWidth || document.documentElement.clientWidth || document.body.clientWidth
     const height = window.outerHeight || document.documentElement.clientHeight || document.body.clientHeight
-
+   
     const left = Math.max(0, (width / 2) - (WIDTH_POPUP / 2) + screenLeft)
     const top = Math.max(0, (height / 2) - (HEIGHT_POPUP / 2) + screenTop)
 
